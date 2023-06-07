@@ -1,11 +1,20 @@
-from datetime import datetime
-from enum import Enum
-from typing import List, Optional
 
-from fastapi import FastAPI
-from pydantic import BaseModel, Field, ValidationError, validator
+from typing import List
+
+from fastapi import FastAPI, APIRouter
+
+from orders.schemas import Place
+from orders.router import router as order_router
 
 app = FastAPI()
+
+place_router = APIRouter(
+    prefix = "/place",
+    tags =["Place"]
+)
+app.include_router(order_router)
+app.include_router(place_router)
+
 
 places = [
     {"place_id": 1, "name": "Golden cafe", "address": "Pyshkina 23", "phone": "+375447890929", "category": "cafe",
@@ -30,32 +39,7 @@ places = [
 ]
 
 
-class Waiter(BaseModel):
-    waiter_id: int
-    name: str
-    last_name: str
 
-class Category(Enum):
-    restaurant = "restaurant"
-    cafe = "cafe"
-    bar = "bar"
-
-class BookingTimeTable(BaseModel):
-    start_armor: datetime
-    end_armor: datetime
-
-class Table(BaseModel):
-    table_id: int
-    waiter: Waiter
-    booking_time_table: List[BookingTimeTable]
-
-class Place(BaseModel):
-    place_id: int = Field(ge=0)
-    name: str = Field(min_length=2)
-    address: str
-    phone: str
-    category: Category
-    tables: Optional[List[Table]] = []
 
 
     # @validator('address')
@@ -71,23 +55,17 @@ class Place(BaseModel):
     #     return v.title()
 
 
-@app.get("/places")
+@place_router.get("/places")
 async def get_places():
     return {"places": places}
 
 
-@app.get("/places/{place_id}")
+@place_router.get("/places/{place_id}")
 async def get_place(place_id: int):
-    # est = ""
-    #
-    # for place in places:
-    #     if place["place_id"] == place_id:
-    #         est = place
     establishments = [est for est in places if est["place_id"] == place_id]
     return {"place": establishments}
 
-
-@app.post("/add_place")
+@place_router.post("/add_place")
 async def post_place(place: List[Place]):
     places.append(place)
     return {"places": places}

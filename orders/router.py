@@ -1,3 +1,4 @@
+import time
 from typing import List
 
 from fastapi import APIRouter, Depends
@@ -9,10 +10,32 @@ from orders.schemas import WaiterSchema
 
 from orders.models import get_async_session,Waiters
 
+
+# from fastapi import FastAPI
+# from starlette.requests import Request
+# from starlette.responses import Response
+
+# from fastapi_cache import FastAPICache
+# from fastapi_cache.backends.redis import RedisBackend
+# from fastapi_cache.decorator import cache
+#
+# from redis import asyncio as aioredis
+
 router = APIRouter(
     prefix="/order",
     tags = ["Orders"]
 )
+
+# @router.on_event("startup")
+# async def startup():
+#     redis = aioredis.from_url("redis://localhost")
+#     FastAPICache.init(RedisBackend(redis), prefix="fastapi-cache")
+#
+# @router.get("/hello_cache")
+# @cache(expire=30)
+# async def index():
+#     time.sleep(5)
+#     return dict(hello="world")
 
 @router.get("/")
 def get_orders():
@@ -42,3 +65,7 @@ async def new_waiter(waiter:WaiterSchema,session:AsyncSession = Depends(get_asyn
     await session.commit()
     await session.refresh(waiter)
     return {"status code": 201}
+
+
+
+

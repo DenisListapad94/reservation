@@ -5,15 +5,31 @@ from fastapi import FastAPI, APIRouter
 
 from orders.schemas import Place
 from orders.router import router as order_router
-
+from fastapi import APIRouter, BackgroundTasks
 app = FastAPI()
+
+
 
 place_router = APIRouter(
     prefix = "/place",
     tags =["Place"]
 )
 app.include_router(order_router)
-app.include_router(place_router)
+
+
+from tasks.tasks import send_email_report
+
+@app.get("/send_mail")
+def get_dashboard_report(background_tasks: BackgroundTasks):
+# def get_dashboard_report():
+    # send_email_report()
+    # background_tasks.add_task(send_email_report)
+    send_email_report.delay()
+    return {
+        "status": 200,
+        "data": "Письмо отправлено",
+        "details": None
+    }
 
 
 places = [
@@ -55,17 +71,22 @@ places = [
     #     return v.title()
 
 
-@place_router.get("/places")
-async def get_places():
-    return {"places": places}
+# @app.get("/places")
+# async def get_places():
+#     return {"places": places}
+#
+#
+# @app.get("/places/{place_id}")
+# async def get_place(place_id: int):
+#     establishments = [est for est in places if est["place_id"] == place_id]
+#     return {"place": establishments}
+#
+# @app.post("/add_place")
+# async def post_place(place: List[Place]):
+#     places.append(place)
+#     return {"places": places}
 
+@app.get("/")
+async def read_main():
+    return {"msg": "Hello World"}
 
-@place_router.get("/places/{place_id}")
-async def get_place(place_id: int):
-    establishments = [est for est in places if est["place_id"] == place_id]
-    return {"place": establishments}
-
-@place_router.post("/add_place")
-async def post_place(place: List[Place]):
-    places.append(place)
-    return {"places": places}

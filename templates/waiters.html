@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <ul>
+{% for waiter in waiters %}
+  <li>{{ waiter.name }} {{ waiter.last_name }}</li>
+       <li>{{ waiter.get_info_person()}}</li>
+
+{% endfor %}
+</ul>
+{% endblock %}

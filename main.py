@@ -1,20 +1,23 @@
 
 from typing import List
 
-from fastapi import FastAPI, APIRouter
+from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
 
-from orders.schemas import Place
 from orders.router import router as order_router
+from chat.router import router as chat_router
+
+
 from fastapi import APIRouter, BackgroundTasks
+
 app = FastAPI()
 
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 
-place_router = APIRouter(
-    prefix = "/place",
-    tags =["Place"]
-)
+
 app.include_router(order_router)
+app.include_router(chat_router)
 
 
 from tasks.tasks import send_email_report
